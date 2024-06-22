@@ -1,6 +1,6 @@
 # **Runner Game**
 
-A 2d Side scr0ller runner game.
+A 2d Side scroller runner game.
 
 ## **ScreenShot**!
 
