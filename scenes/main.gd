@@ -87,6 +87,7 @@ func generate_obs():
 		
 func add_obs(obs,x,y):
 		obs.position = Vector2i(x,y)
+		obs.body_entered.connect(hit_obs)
 		add_child(obs)
 		obstacles.append(obs)
 	
@@ -94,6 +95,14 @@ func delete_obs(obs):
 	obs.queue_free()
 	obstacles.erase(obs)
 
+func hit_obs(body):
+	if body.name == "Player":
+		game_over()
+
+func game_over():
+	game_running = false
+	get_tree().paused = true
+	
 func show_score():
 	$HUD.get_node("Scorelabel").text = "SCORE: "+ str(score / SCORE_MOD)
 	
