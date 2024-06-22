@@ -13,6 +13,7 @@ var diffculty
 const MAX_DIFFICULTY : int = 2
 var score : int
 const SCORE_MOD : int = 10
+var high_score : int
 var speed : float
 const START_SPEED : float = 10.0
 const MAX_SPEED : int = 25
@@ -25,18 +26,24 @@ var last_obs
 func _ready():
 	screen_size = get_window().size
 	ground_height = $Ground.get_node("Sprite2D").texture.get_height()
+	$Button.get_node("Button").pressed.connect(new_game)
 	new_game()
 	
 func new_game():
 	score = 0
 	show_score()
 	game_running = false
+	get_tree().paused = false
 	diffculty = 0
+	for obs in obstacles:
+		obs.queue_free()
+	obstacles.clear()
 	$Player.position = START_POS
 	$Player.velocity = Vector2i(0,0)
 	$Camera2D.position = CAM_START_POS
 	$Ground.position = Vector2i(0,390)
 	$HUD.get_node("Startlabel").show()
+	$Button.hide()
 	
 	
 func _process(delta):
@@ -75,7 +82,7 @@ func generate_obs():
 			var obs_y : int =screen_size.y - ground_height - (obs_height * obs_scale.y /2) + 490
 			last_obs = obs
 			add_obs(obs,obs_x,obs_y)
-		if diffculty == diffculty: # MAX_DIFFICULTY:
+		if diffculty == MAX_DIFFICULTY:
 			if (randi() %2) == 0:
 				obs = bird.instantiate()
 				var obs_x : int = screen_size.x + score + 800 
@@ -100,14 +107,23 @@ func hit_obs(body):
 		game_over()
 
 func game_over():
+	check_high_score()
 	game_running = false
 	get_tree().paused = true
+	$Button.show()
 	
 func show_score():
 	$HUD.get_node("Scorelabel").text = "SCORE: "+ str(score / SCORE_MOD)
+	
+func check_high_score():
+	if score > high_score:
+		high_score = score
+		$HUD.get_node("Highscore").text = "HIGH SCORE: "+ str(high_score/SCORE_MOD)
+	
 	
 func adjust_diff():
 	diffculty = score / SPEED_MOD
 	if diffculty > MAX_DIFFICULTY:
 		diffculty = MAX_DIFFICULTY
 	
+
