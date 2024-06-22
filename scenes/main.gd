@@ -54,7 +54,9 @@ func _process(delta):
 		
 		if $Camera2D.position.x - $Ground.position.x > screen_size.x * 2:
 			$Ground.position.x +=screen_size.x
-		for obs in 
+		for obs in obstacles:
+			if obs.position.x < ($Camera2D.position.x - screen_size.x):
+				delete_obs(obs)
 	else:
 		if Input.is_action_pressed("ui_accept"):
 			game_running = true
@@ -88,6 +90,9 @@ func add_obs(obs,x,y):
 		add_child(obs)
 		obstacles.append(obs)
 	
+func delete_obs(obs):
+	obs.queue_free()
+	obstacles.erase(obs)
 
 func show_score():
 	$HUD.get_node("Scorelabel").text = "SCORE: "+ str(score / SCORE_MOD)
