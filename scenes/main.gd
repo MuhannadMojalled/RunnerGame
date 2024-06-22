@@ -9,6 +9,8 @@ var bird_height :=[200,390]
 
 const START_POS := Vector2i(150,485)
 const CAM_START_POS := Vector2i(823,593)
+var diffculty
+const MAX_DIFFICULTY : int = 2
 var score : int
 const SCORE_MOD : int = 10
 var speed : float
@@ -29,6 +31,7 @@ func new_game():
 	score = 0
 	show_score()
 	game_running = false
+	diffculty = 0
 	$Player.position = START_POS
 	$Player.velocity = Vector2i(0,0)
 	$Camera2D.position = CAM_START_POS
@@ -41,7 +44,7 @@ func _process(delta):
 		speed = START_SPEED + score / SPEED_MOD
 		if speed>MAX_SPEED:
 			speed = MAX_SPEED
-		
+		adjust_diff()
 		generate_obs()
 		
 		$Player.position.x +=speed
@@ -51,6 +54,7 @@ func _process(delta):
 		
 		if $Camera2D.position.x - $Ground.position.x > screen_size.x * 2:
 			$Ground.position.x +=screen_size.x
+		for obs in 
 	else:
 		if Input.is_action_pressed("ui_accept"):
 			game_running = true
@@ -60,7 +64,7 @@ func generate_obs():
 	if obstacles.is_empty() or last_obs.position.x< score + randi_range(300,500):
 		var obs_type = obstacle_types[randi()% obstacle_types.size()]
 		var obs
-		var max_obs = 3
+		var max_obs = diffculty + 1
 		for i in range(randi() % max_obs +1):
 			obs = obs_type.instantiate()
 			var obs_height = obs.get_node("Sprite2D").texture.get_height()
@@ -69,6 +73,14 @@ func generate_obs():
 			var obs_y : int =screen_size.y - ground_height - (obs_height * obs_scale.y /2) + 490
 			last_obs = obs
 			add_obs(obs,obs_x,obs_y)
+		if diffculty == diffculty: # MAX_DIFFICULTY:
+			if (randi() %2) == 0:
+				obs = bird.instantiate()
+				var obs_x : int = screen_size.x + score + 800 
+				var obs_y : int =bird_height[ randi() % bird_height.size()]
+				add_obs(obs,obs_x,obs_y+350)
+			
+				
 
 		
 func add_obs(obs,x,y):
@@ -79,4 +91,9 @@ func add_obs(obs,x,y):
 
 func show_score():
 	$HUD.get_node("Scorelabel").text = "SCORE: "+ str(score / SCORE_MOD)
+	
+func adjust_diff():
+	diffculty = score / SPEED_MOD
+	if diffculty > MAX_DIFFICULTY:
+		diffculty = MAX_DIFFICULTY
 	
